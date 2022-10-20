@@ -65,6 +65,12 @@ class TestBubbles:
         assert floating_bubble.state == "burst"
         assert floating_bubble.col == "blue"
 
+    def test_move_one_point_in_random_direction(self, floating_bubble):
+        original_x, original_y = floating_bubble.position()
+        floating_bubble.move_one_point_in_random_direction()
+        new_x, new_y = floating_bubble.position()
+        assert (abs(original_x-new_x)+abs(original_y-new_y)) == 1
+
 
 class TestWorldGrid:
 

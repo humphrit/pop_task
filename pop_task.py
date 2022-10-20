@@ -38,17 +38,20 @@ class Bubble(WorldObject):
     def __init__(self, obj_id, initx, inity):
         super().__init__(obj_id, initx, inity)
 
+    def move_one_point_in_random_direction(self):
+        direction = np.random.choice(["left", "right", "up", "down", "stay"])
+        if direction == "left":
+            self.move(-1, 0)
+        elif direction == "right":
+            self.move(1, 0)
+        elif direction == "up":
+            self.move(0, 1)
+        elif direction == "down":
+            self.move(0, -1)
+
     def update_state(self):
         if self.state == "floating":
-            direction = np.random.choice(["left", "right", "up", "down", "stay"])
-            if direction == "left":
-                self.move(-1, 0)
-            elif direction == "right":
-                self.move(1, 0)
-            elif direction == "up":
-                self.move(0, 1)
-            elif direction == "down":
-                self.move(0, -1)
+            self.move_one_point_in_random_direction()
         else:
             self.col = "blue"
 
@@ -84,6 +87,7 @@ class WorldGrid():
     def update_state(self):
         for w_object in self.w_objects:
             w_object.update_state()
+
 
     def burst_bubbles(self):
         positions = self.object_positions()
