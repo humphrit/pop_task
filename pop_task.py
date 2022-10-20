@@ -50,8 +50,9 @@ class Bubble(WorldObject):
         return go.Scatter(x=[self.posx], y=[self.posy], mode="markers", marker={"color": self.col})
 
     def burst(self):
-        self.state = "burst"
-        self.col = "red"
+        if self.state == "floating":
+            self.state = "burst"
+            self.col = "red"
 
 
 class Rock(WorldObject):
