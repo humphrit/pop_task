@@ -27,6 +27,9 @@ class WorldObject():
     def update_state(self):
         raise NotImplementedError()
 
+    def position(self):
+        return self.posx, self.posy
+
 
 class Bubble(WorldObject):
     col = "green"
@@ -36,15 +39,18 @@ class Bubble(WorldObject):
         super().__init__(obj_id, initx, inity)
 
     def update_state(self):
-        direction = np.random.choice(["left", "right", "up", "down", "stay"])
-        if direction == "left":
-            self.move(-1, 0)
-        elif direction == "right":
-            self.move(1, 0)
-        elif direction == "up":
-            self.move(0, 1)
-        elif direction == "down":
-            self.move(0, -1)
+        if self.state == "floating":
+            direction = np.random.choice(["left", "right", "up", "down", "stay"])
+            if direction == "left":
+                self.move(-1, 0)
+            elif direction == "right":
+                self.move(1, 0)
+            elif direction == "up":
+                self.move(0, 1)
+            elif direction == "down":
+                self.move(0, -1)
+        else:
+            self.col = "blue"
 
     def draw(self):
         return go.Scatter(x=[self.posx], y=[self.posy], mode="markers", marker={"color": self.col})
@@ -73,10 +79,19 @@ class WorldGrid():
         self.width = width
         self.height = height
         self.w_objects = w_objects
+        self.rock_positions = [x.position() for x in self.w_objects if isinstance(x, Rock)]
 
     def update_state(self):
         for w_object in self.w_objects:
             w_object.update_state()
+
+    def burst_bubbles(self):
+        positions = self.object_positions()
+        seen = set()
+        duplicate_positions = [x for x in positions if x in seen or seen.add(x)]
+        for w_object in self.w_objects:
+            if w_object.position() in duplicate_positions and isinstance(w_object, Bubble):
+                w_object.burst()
 
     def get_frame(self, frame_number: int):
         draw_objects = []
@@ -97,6 +112,11 @@ class WorldGrid():
                 updatemenus=[dict(type="buttons",
                     buttons=[dict(label="Play", method="animate", args=[None])])]), frames=frames)
         fig.show()
+
+    def object_positions(self):
+        return [x.position() for x in self.w_objects if isinstance(x, Bubble) and x.state ==
+                "floating"] + self.rock_positions
+
 
 
 def simulate():
